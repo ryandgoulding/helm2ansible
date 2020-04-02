@@ -1,0 +1,13 @@
+---
+# tasks file for ngnix
+- name: Create resources for {{ name }} deployment
+  k8s:
+    state: present
+    definition: "{{ lookup('template', item.name) | from_yaml }}"
+  loop:
+    - name: deployment.yml.j2
+    - name: ingress.yml.j2
+    - name: server-block-configmap..yml.j2
+    - name: service.yml.j2
+    - name: servicemonitor.yml.j2
+    - name: tls-secrets.yml.j2
