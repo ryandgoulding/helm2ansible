@@ -1,0 +1,98 @@
+server-block-configmap.yml.j2
+===============================
+1) Convert "{{ ... }}" which can be used for control structures in Helm syntax to the corresponding control syntax in
+Jinja2 "{% ... %}".  This is not global, as we still need to utilize "{{ ... }}" for templating in J2 in other places,
+such as outputting serverBlock configuration.
+
+2) Removed the define blocks for fullname and labels.  I actually have zero clue what this is for so far.
+
+3) "end" is replaced with the corresponding control syntax "endif".
+
+4) "indent 2" is replaced with the Filter function call "indent(2)".
+
+5) Unlike with helm charts, referencing an undefined variable in Ansible will result in an AnsibleUndefinedError.  So,
+conditionals surrounding whether something is defined needs to use "if serverBlock is defined" instead of
+"if serverBlock" formatting.
+
+6) Remove references to ".Values" as these are now in "defaults/main.yml".
+
+Open Questions:
+1) When "server" configuration is inlined, the first line is not indented properly.
+
+tls-secrets.yml.j2
+===============================
+1) "range" functionality differs between helm and jinja2.  Namely, "range" is better represented using the "for _ in _"
+syntax style.   Thus, this resulted in "for secret in ingress.secrets".
+
+2) The "range" functionality exposes an iterator, and you can reference aspects of the iterator using the convention
+".property".  This is not appropriate syntax for jinja2, as the automatic scoping is not really present.  Thus, I had to
+qualify ".certificate" with "secret.certificate" and ".key" with "secret.key" (secret is the iterator).
+
+3) "b64enc" is represented using "b64encode" in jinja2;  easy fix.
+
+servicemonitor.yml.j2
+===============================
+1) "and" operator differs between Helm and J2.  Helm goes "and condition1 condition2" whereas J2 utilizes
+"condition1 and condition2".
+
+2) "range" is not acceptable in J2;  had to use something more similar to python "iteritems()".
+
+3) defaults/main.yml referenced ".Values" for Prometheus;  I needed to remove the .Values there as it was causing a
+circular reference/infinite loop.  I replaced it with an integer literal.
+
+4) ".Release.Namespace" was changed to a literal string.
+
+5) "if metrics.serviceMonitor.namespace" needed to become "if metrics.serviceMonitor.namespace is defined".
+
+6) Needed to add conditional logic around the for key/value loop to ensure that "metrics.serviceMonitor.selector" is
+defined.
+
+7) "if metrics.serviceMonitor.interval" -> "if metrics.serviceMonitor.interval is defined"
+
+8) "if metrics.serviceMonitor.scrapeTimeout" -> "if metrics.serviceMonitor.scrapeTimeout is defined"
+
+Open Questions:
+1) What should be done about ".Release.Namespace"?
+
+service.yml.j2
+===============================
+1) TPL functions were removed.  In fact, the annotations section is left blank.
+
+2) "eq" replaced with "==".
+
+3) "empty" function is replaced with "is defined" logic for service.loadBalancerIP list.  This is repeated later for
+service.nodePorts.http port list.
+
+4) "include nginx.matchLabels" was removed for a string literal just to get this to succeed.
+
+5) nindent blindly replaced with indent;  this may not actually work.
+
+Open Questions:
+1) What to do with tpl functions?  What to do about the "dict" keyword?  Will explore this more later.
+
+2) What to do with include statements.
+
+3) What is "nindent"?  Can we just use indent?
+
+ingres.yml.j2
+===============================
+1) "fullname" string literal was used instead of sourcing it through helper functions.
+
+2) "iteritems()" was blowing up with "dict has no iteritems()"; so I added a conditional to ensure that
+ingress.annotations is set to non-None.
+
+3) Removed "default".
+
+Open Questions:
+1) How to properly get "nginx.fullname"?
+
+deployment.yml.j2
+===============================
+1) Replaced include and template references.
+
+2) Removed tpl references for now in the "annotations" section;  they will be considered later.
+
+3) affinity, nodeSelector and tolerations are removed temporarily
+
+Open Questions:
+1) What to do with helper tpls?

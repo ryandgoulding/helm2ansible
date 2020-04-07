@@ -1,37 +1,41 @@
-{{- if .Values.ingress.enabled }}
+{%- if ingress.enabled %}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{ include "nginx.fullname" . }}
-  labels: {{- include "nginx.labels" . | nindent 4 }}
+  name: fullname
+  labels: {{- labels | indent(4) }}
   annotations:
-    {{- if .Values.ingress.certManager }}
+    {%- if ingress.certManager %}
     kubernetes.io/tls-acme: "true"
-    {{- end }}
-    {{- range $key, $value := .Values.ingress.annotations }}
-    {{ $key }}: {{ $value | quote }}
-    {{- end }}
+    {%- endif %}
+    {% if ingress.annotations is defined and ingress.annotations %}
+    {%- for key, value in ingress.annotations.iteritems() %}
+    {{ key }}: {{ value | quote }}
+    {%- endfor %}
+    {% endif %}
 spec:
   rules:
-    {{- if .Values.ingress.hostname }}
-    - host: {{ .Values.ingress.hostname }}
+    {%- if ingress.hostname %}
+    - host: {{ ingress.hostname }}
       http:
         paths:
           - path: /
             backend:
-              serviceName: "{{ template "nginx.fullname" $ }}"
+              serviceName: fullname
               servicePort: http
-    {{- end }}
-    {{- range .Values.ingress.hosts }}
-    - host: {{ .name }}
+    {%- endif %}
+    {% if ingress.hosts is defined %}
+    {% for host in ingress.hosts %}
+    - host: {{ host.name }}
       http:
         paths:
-          - path: {{ default "/" .path }}
+          - path: {{ host.path }}
             backend:
-              serviceName: "{{ template "nginx.fullname" $ }}"
+              serviceName: fullname
               servicePort: http
-    {{- end }}
-  {{- if .Values.ingress.tls }}
-  tls: {{- toYaml .Values.ingress.tls | nindent 4 }}
-  {{- end }}
-{{- end }}
+    {%- endfor %}
+    {% endif %}
+  {%- if ingress.tls %}
+  tls: {{- ingress.tls | to_yaml | indent(4) }}
+  {%- endif %}
+{%- endif %}

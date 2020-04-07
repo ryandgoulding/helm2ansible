@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  vars:
+    - name: ngnix ansible operator
+    - fullname: ngnix ansible operator fullname
+    - labels: labels
+  roles:
+    - role: ngnix
