@@ -1,5 +1,83 @@
 ---
-# tasks file for ngnix
+########################################################################################
+# debug server-block-configmap.yml
+- name: template server-blockconfigmap.yml file generation
+  template:
+    src: server-block-configmap.yml.j2
+    dest: ~/server-block-configmap.yml
+
+# read and debug output server-block-configmap.yml
+- name: read and debug output server-block-configmap.yml
+  command: cat ~/server-block-configmap.yml
+  register: serverblockconfigmap
+- debug: var=serverblockconfigmap.stdout
+
+########################################################################################
+# debug tls-secrets.yml
+- name: template tls-secrets.yml file generation
+  template:
+    src: tls-secrets.yml.j2
+    dest: ~/tls-secrets.yml
+
+# read and debug output tls-secrets.yml
+- name: read and debug output tls-secrets.yml
+  command: cat ~/tls-secrets.yml
+  register: tlssecrets
+- debug: var=tlssecrets.stdout
+
+########################################################################################
+# debug servicemonitor.yml
+- name: template servicemonitor.yml file generation
+  template:
+    src: servicemonitor.yml.j2
+    dest: ~/servicemonitor.yml
+
+# read and debug output servicemonitor.yml
+- name: read and debug output servicemonitor.yml
+  command: cat ~/servicemonitor.yml
+  register: servicemonitor
+- debug: var=servicemonitor.stdout
+
+########################################################################################
+# debug service.yml
+- name: template service.yml file generation
+  template:
+    src: service.yml.j2
+    dest: ~/service.yml
+
+# read and debug output service.yml
+- name: read and debug output service.yml
+  command: cat ~/service.yml
+  register: service
+- debug: var=service.stdout
+
+########################################################################################
+# debug ingress.yml
+- name: template ingress.yml file generation
+  template:
+    src: ingress.yml.j2
+    dest: ~/ingress.yml
+
+# read and debug output ingress.yml
+- name: read and debug output ingress.yml
+  command: cat ~/ingress.yml
+  register: ingress
+- debug: var=ingress.stdout
+
+########################################################################################
+# debug deployment.yml
+- name: template deployment.yml file generation
+  template:
+    src: deployment.yml.j2
+    dest: ~/deployment.yml
+
+# read and debug output deployment.yml
+- name: read and debug output deployment.yml
+  command: cat ~/deployment.yml
+  register: deployment
+- debug: var=deployment.stdout
+
+# Create k8s resources for ngnix
 - name: Create resources for {{ name }} deployment
   k8s:
     state: present

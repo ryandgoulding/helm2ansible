@@ -38,19 +38,19 @@ image:
 
 ## Custom server block to be added to NGINX configuration
 ## PHP-FPM example server block:
-## serverBlock: |-
-##   server {
-##     listen 0.0.0.0:8080;
-##     root /app;
-##     location / {
-##       index index.html index.php;
-##     }
-##     location ~ \.php$ {
-##       fastcgi_pass phpfpm-server:9000;
-##       fastcgi_index index.php;
-##       include fastcgi.conf;
-##     }
-##   }
+serverBlock: |-
+ server {
+   listen 0.0.0.0:8080;
+   root /app;
+   location / {
+     index index.html index.php;
+   }
+   location ~ \.php$ {
+     fastcgi_pass phpfpm-server:9000;
+     fastcgi_index index.php;
+     include fastcgi.conf;
+   }
+ }
 ##
 # serverBlock:
 
@@ -154,7 +154,7 @@ service:
 ingress:
   ## Set to true to enable ingress record generation
   ##
-  enabled: false
+  enabled: true
 
   ## Set this to true in order to add the corresponding annotations for cert-manager
   ##
@@ -200,11 +200,14 @@ ingress:
   # - name: example.local-tls
   #   key:
   #   certificate:
+    - name: example.localtls
+      key: keyval
+      certificate: certval
 
 ## Prometheus Exporter / Metrics
 ##
 metrics:
-  enabled: false
+  enabled: true
 
   ## Bitnami NGINX Prometheus Exporter image
   ## ref: https://hub.docker.com/r/bitnami/nginx-exporter/tags/
@@ -238,7 +241,7 @@ metrics:
     ##
     annotations:
       prometheus.io/scrape: "true"
-      prometheus.io/port: "{{ .Values.metrics.service.port }}"
+      prometheus.io/port: 9113
 
   ## NGINX Prometheus exporter resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
@@ -258,7 +261,7 @@ metrics:
   ## Prometheus Operator ServiceMonitor configuration
   ##
   serviceMonitor:
-    enabled: false
+    enabled: true
     ## Namespace in which Prometheus is running
     ##
     # namespace: monitoring

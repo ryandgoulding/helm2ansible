@@ -1,10 +1,10 @@
-{{- if .Values.serverBlock -}}
+{%- if serverBlock is defined -%}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "nginx.fullname" . }}
-  labels: {{- include "nginx.labels" . | nindent 4 }}
+  name: fullname
+  labels: labels
 data:
   server-block.conf: |-
-{{ .Values.serverBlock | indent 4 }}
-{{- end -}}
+{{ serverBlock | indent(2) }}
+{%- endif -%}
