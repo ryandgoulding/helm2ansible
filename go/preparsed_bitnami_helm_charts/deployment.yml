@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "nginx.fullname" . }}
+spec:
+containers:
+  - name: nginx
+    image: {{ template "nginx.image" . }}
+    imagePullPolicy: {{ .Values.image.pullPolicy }}
+    ports:
+      - name: http
+        containerPort: 8080
+    {{- if .Values.livenessProbe }}
+    livenessProbe: {{- .Values.livenessProbe }}
+    {{- end }}
+    {{- if .Values.readinessProbe }}
+    readinessProbe: {{- .Values.readinessProbe }}
+    {{- end }}
+    {{- if .Values.resources }}
+    resources: {{- .Values.resources }}
+    {{- end }}
+    {{- if .Values.serverBlock }}
+    volumeMounts:
+      - name: nginx-server-block
+        mountPath: /opt/bitnami/nginx/conf/server_blocks
+    {{- end }}
+  {{- if .Values.metrics.enabled }}
+  - name: metrics
+    image: {{ template "nginx.metrics.image" . }}
+    imagePullPolicy: {{ .Values.metrics.image.pullPolicy }}
+    command: ['/usr/bin/exporter', '-nginx.scrape-uri', 'http://127.0.0.1:8080/status']
+    ports:
+      - name: metrics
+        containerPort: 9113
+    livenessProbe:
+      httpGet:
+        path: /metrics
+        port: metrics
+      initialDelaySeconds: 15
+      timeoutSeconds: 5
+    readinessProbe:
+      httpGet:
+        path: /metrics
+        port: metrics
+      initialDelaySeconds: 5
+      timeoutSeconds: 1
+    {{- if .Values.metrics.resources }}
+    resources: {{- .Values.metrics.resources }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.serverBlock }}
+volumes:
+  - name: nginx-server-block
+    configMap:
+      name: {{ template "nginx.fullname" . }}
+  {{- end }}

@@ -77,6 +77,7 @@
   register: deployment
 - debug: var=deployment.stdout
 
+########################################################################################
 # Create k8s resources for ngnix
 - name: Create resources for {{ name }} deployment
   k8s:
