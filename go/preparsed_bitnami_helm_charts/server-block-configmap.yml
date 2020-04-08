@@ -1,0 +1,9 @@
+{{- if .Values.serverBlock -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "nginx.fullname" . }}
+data:
+  server-block.conf: |-
+  {{ .Values.serverBlock }}
+  {{- end -}}
